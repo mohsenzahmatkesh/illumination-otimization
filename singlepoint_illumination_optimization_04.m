@@ -9,8 +9,8 @@ base_angles = deg2rad([0, 60, 120, 180, 240, 300])';
 led_height = 15;           
 
 
-target_r = 3.0;             % cm
-target_theta = 30*pi/180;   
+target_r = 0.0;             % cm
+target_theta = 0*pi/180;   
 I_tg = 100;                
 
 
@@ -57,6 +57,7 @@ function error = objectiveFunc(x, gamma, theta_c, target_r, target_theta, ...
     total_I = computeIntensity(x(1:6), x(7:12), x(13), gamma, theta_c, ...
                               led_height, base_angles, x_tg, y_tg);
     error = (I_tg - total_I)^2 + 0.001 * sum((x(7:12) - r_initial).^2) + 0.001 * sum((x(1:6) - I0_initial).^2);
+    % error = (I_tg - total_I)^2 + 0.001 * sum((x(7:12) - r_initial).^2);
 end
 
 function total_I = computeIntensity(I0s, radii, delta_theta, gamma, theta_c, ...
