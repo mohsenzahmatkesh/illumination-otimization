@@ -48,11 +48,11 @@ function plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height,
     
     % Plot LEDs
     [x_leds, y_leds] = pol2cart(opt_angles, opt_radii);
-    scatter(x_leds, y_leds, 50, 'filled', 'MarkerFaceColor', 'cyan', 'DisplayName', 'LEDs');
+    scatter(x_leds, y_leds, 50, 'filled', 'MarkerFaceColor', 'blue', 'DisplayName', 'LEDs');
     
     % Plot target point
     %[x_tgt, y_tgt] = pol2cart(target_theta, target_r);
-    scatter(x_tg, y_tg, 20, 'r*', 'DisplayName', 'Target');
+    scatter(x_tg, y_tg, 20, 'g*', 'DisplayName', 'Target');
     
     legend;
     title('LED Intensity Footprint Map');
