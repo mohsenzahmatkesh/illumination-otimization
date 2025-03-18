@@ -29,8 +29,6 @@ class Experiment_sim():
         
         rospy.Subscriber("/illum_traj", Pose, self.led_illum_tgt, queue_size=1)
         
-        
-        
     def led_illum_tgt(self,msg):
         
         self.x_tg = msg.position.x
