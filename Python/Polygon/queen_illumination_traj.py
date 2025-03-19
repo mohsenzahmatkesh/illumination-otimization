@@ -20,7 +20,7 @@ class Queen_Cam_TGT:
     
     def __init__(self, filename = 'h2xy_queen_2024-07-03-01-00-04_xy_0_queen.csv'):
         
-        rospy.init_node("illum_traj")
+        rospy.init_node("illumination_trajectory_generation")
         
         
         self.rate = rospy.Rate(10)
@@ -33,7 +33,7 @@ class Queen_Cam_TGT:
         self.size = self.data.shape
         self.settings = termios.tcgetattr(sys.stdin)
         
-        self.MA_motion_pub = rospy.Publisher("/illum_traj", Pose, queue_size=2)
+        self.MA_motion_pub = rospy.Publisher("/illumination_trajectory_generation", Pose, queue_size=2)
         
         self.Pos_com = Pose()
         
@@ -50,7 +50,6 @@ class Queen_Cam_TGT:
             self.key = ''
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         
-        
     def main(self):
         
         tt = 0
@@ -63,15 +62,11 @@ class Queen_Cam_TGT:
                 qx = self.data.iat[i,10]
                 qy = self.data.iat[i,11]
                 
-                
                 cam_x = self.data.iat[i,3]
                 cam_y = self.data.iat[i,4]
                 
-                
                 self.Pos_com.position.x = qx - cam_x
                 self.Pos_com.position.y = qy - cam_y
-                
-                                
                 
                 self.MA_motion_pub.publish(self.Pos_com)
                 

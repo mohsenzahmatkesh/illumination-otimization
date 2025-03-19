@@ -21,7 +21,7 @@ from scipy.optimize import minimize
 from mpl_toolkits.mplot3d import Axes3D
 
 
-class SinglePoint_Illumination():
+class singlepoint_optimization():
     
     def __init__(self, Nag=6, r_init=6, led_height = 15, target_r = 0, target_theta=0, I_tg=100, I0_initial=50):
         
@@ -163,7 +163,7 @@ class SinglePoint_Illumination():
         
 
 if __name__ == "__main__":
-   sing_Illum = SinglePoint_Illumination(Nag=6, r_init=6, led_height = 15, target_r = 0, target_theta=0, I_tg=100, I0_initial=50)
+   sing_Illum = singlepoint_optimization(Nag=6, r_init=6, led_height = 15, target_r = 0, target_theta=0, I_tg=100, I0_initial=50)
    sing_Illum.main()
 
 
