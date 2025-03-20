@@ -27,6 +27,8 @@ class Experiment_sim():
         self.I_pwm_value = [0] * 6
         self.r_pwm_value = [0] * 6
         self.theta_pwm_value = [0] * 6
+        self.d = [0] * 6
+        self.steps = 10
         
         rospy.Subscriber("/illumination_trajectory_generation", Pose, self.update_target_pos, queue_size=1)
         
@@ -41,9 +43,39 @@ class Experiment_sim():
         opt_I0, opt_radii, opt_rotation = self.optimized_illumination_results.main()
         for i in range(6):
             self.I_pwm_value[i] = int((opt_I0[i] * 4095) / 4000)
-            self.r_pwm_value[i] = int((opt_I0[i] * 4095) / 4000)
-        print("optimum_illumination", opt_I0)
-        print("optimum_radius", opt_I0)
+            self.r_pwm_value[i] = 0.25 - ((opt_radii[i] - 1) / (8 - 1)) * (0.25 - 0.15)
+            self.d[i] = max(205, min(int(205 + (self.r_pwm_value[i] - 0.15) * 2050), 410))
+            step_sizes = [(self.d[i] - 205) / self.steps]
+            
+        #LEDs
+        pwm.set_pwm(channel=1, on_time=0, off_time=self.I_pwm_value[0])
+        pwm.set_pwm(channel=2, on_time=0, off_time=self.I_pwm_value[1])
+        pwm.set_pwm(channel=3, on_time=0, off_time=self.I_pwm_value[2])
+        pwm.set_pwm(channel=4, on_time=0, off_time=self.I_pwm_value[3])
+        pwm.set_pwm(channel=5, on_time=0, off_time=self.I_pwm_value[4])
+        pwm.set_pwm(channel=6, on_time=0, off_time=self.I_pwm_value[5])
+        
+        #Actuators
+        for i in range(self.steps):
+            pwm.set_pwm(channel=7, on_time=0, off_time=int(205 + step_sizes[0] * i))
+            pwm.set_pwm(channel=8, on_time=0, off_time=int(205 + step_sizes[1] * i))
+            pwm.set_pwm(channel=9, on_time=0, off_time=int(205 + step_sizes[2] * i))
+            pwm.set_pwm(channel=10, on_time=0, off_time=int(205 + step_sizes[3] * i))
+            pwm.set_pwm(channel=11, on_time=0, off_time=int(205 + step_sizes[4] * i))
+            pwm.set_pwm(channel=12, on_time=0, off_time=int(205 + step_sizes[5] * i))
+            
+            time.sleep(0.05)
+            
+        pwm.set_pwm(channel=7, on_time=0, off_time=int(self.d[7]))
+        pwm.set_pwm(channel=8, on_time=0, off_time=int(self.d[8]))
+        pwm.set_pwm(channel=9, on_time=0, off_time=int(self.d[9]))
+        pwm.set_pwm(channel=10, on_time=0, off_time=int(self.d[10]))
+        pwm.set_pwm(channel=11, on_time=0, off_time=int(self.d[11]))
+        pwm.set_pwm(channel=12, on_time=0, off_time=int(self.d[12]))
+
+
+        print("optimum_illumination", self.I_pwm_value)
+        print("optimum_radius", self.r_pwm_value)
         print("optimum_rotation", opt_rotation)
         
     def start(self):

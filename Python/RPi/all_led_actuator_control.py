@@ -55,6 +55,8 @@ try:
         pwm.set_pwm(channel=11, on_time=0, off_time=int(410))
         pwm.set_pwm(channel=12, on_time=0, off_time=int(410))
         
+        time.sleep(50)
+        
 
 except KeyboardInterrupt:
 for i in range(1, 7):
