@@ -6,9 +6,13 @@ Created on Mon Mar 17 12:08:35 2025
 @author: Mohsen Zahmatkesh
 """
 import numpy as np
+import time
 from singlepoint_illumination import singlepoint_optimization
 import rospy
 from geometry_msgs.msg import Pose
+from ServoPi import PWM
+pwm = PWM(address=0x42)  
+pwm.set_pwm_freq(50)  
 np.float = float 
 np.int = int     
 
@@ -18,16 +22,26 @@ class Experiment_sim():
         
         rospy.init_node("illumination_command_generation")
         
-        self.optimized_illumination_results = singlepoint_optimization(Nag=6, r_init=6, led_height = 15, target_r = 0, target_theta=0, I_tg=100, I0_initial=50)
+        self.optimized_illumination_results = singlepoint_optimization(
+                Nag=6, r_init=6, led_height = 15, target_r = 0, target_theta=0, I_tg=100, I0_initial=50)
+        
         self.Pos_com = Pose()
         self.Pos_com.position.x = 0
         self.Pos_com.position.y = 0
         self.x_tg = 0
         self.y_tg = 0
+        
         self.I_pwm_value = [0] * 6
         self.r_pwm_value = [0] * 6
         self.theta_pwm_value = [0] * 6
-        self.d = [0] * 6
+        self.d = [205] * 6
+        
+        self.prev_I_pwm_value = [0] * 6  
+        self.prev_r_pwm_value = [0] * 6  
+        self.prev_d = [205] * 6
+        
+        
+        self.step_sizes = [0] * 6
         self.steps = 10
         
         rospy.Subscriber("/illumination_trajectory_generation", Pose, self.update_target_pos, queue_size=1)
@@ -41,11 +55,15 @@ class Experiment_sim():
         self.optimized_illumination_results.y_tg = self.y_tg
         
         opt_I0, opt_radii, opt_rotation = self.optimized_illumination_results.main()
+        
         for i in range(6):
+            
             self.I_pwm_value[i] = int((opt_I0[i] * 4095) / 4000)
+            
             self.r_pwm_value[i] = 0.25 - ((opt_radii[i] - 1) / (8 - 1)) * (0.25 - 0.15)
             self.d[i] = max(205, min(int(205 + (self.r_pwm_value[i] - 0.15) * 2050), 410))
-            step_sizes = [(self.d[i] - 205) / self.steps]
+            self.step_sizes[i] = int((self.d[i] - 205) / self.steps)
+
             
         #LEDs
         pwm.set_pwm(channel=1, on_time=0, off_time=self.I_pwm_value[0])
@@ -57,30 +75,46 @@ class Experiment_sim():
         
         #Actuators
         for i in range(self.steps):
-            pwm.set_pwm(channel=7, on_time=0, off_time=int(205 + step_sizes[0] * i))
-            pwm.set_pwm(channel=8, on_time=0, off_time=int(205 + step_sizes[1] * i))
-            pwm.set_pwm(channel=9, on_time=0, off_time=int(205 + step_sizes[2] * i))
-            pwm.set_pwm(channel=10, on_time=0, off_time=int(205 + step_sizes[3] * i))
-            pwm.set_pwm(channel=11, on_time=0, off_time=int(205 + step_sizes[4] * i))
-            pwm.set_pwm(channel=12, on_time=0, off_time=int(205 + step_sizes[5] * i))
+            pwm.set_pwm(channel=7, on_time=0, off_time=(self.prev_d[0] + self.step_sizes[0] * i))
+            pwm.set_pwm(channel=8, on_time=0, off_time=(self.prev_d[1] + self.step_sizes[1] * i))
+            pwm.set_pwm(channel=9, on_time=0, off_time=(self.prev_d[2] + self.step_sizes[2] * i))
+            pwm.set_pwm(channel=10, on_time=0, off_time=(self.prev_d[3] + self.step_sizes[3] * i))
+            pwm.set_pwm(channel=11, on_time=0, off_time=(self.prev_d[4] + self.step_sizes[4] * i))
+            pwm.set_pwm(channel=12, on_time=0, off_time=(self.prev_d[5] + self.step_sizes[5] * i))
             
             time.sleep(0.05)
             
-        pwm.set_pwm(channel=7, on_time=0, off_time=int(self.d[7]))
-        pwm.set_pwm(channel=8, on_time=0, off_time=int(self.d[8]))
-        pwm.set_pwm(channel=9, on_time=0, off_time=int(self.d[9]))
-        pwm.set_pwm(channel=10, on_time=0, off_time=int(self.d[10]))
-        pwm.set_pwm(channel=11, on_time=0, off_time=int(self.d[11]))
-        pwm.set_pwm(channel=12, on_time=0, off_time=int(self.d[12]))
+        pwm.set_pwm(channel=7, on_time=0, off_time=int(self.d[0]))
+        pwm.set_pwm(channel=8, on_time=0, off_time=int(self.d[1]))
+        pwm.set_pwm(channel=9, on_time=0, off_time=int(self.d[2]))
+        pwm.set_pwm(channel=10, on_time=0, off_time=int(self.d[3]))
+        pwm.set_pwm(channel=11, on_time=0, off_time=int(self.d[4]))
+        pwm.set_pwm(channel=12, on_time=0, off_time=int(self.d[5]))
+        
+        self.prev_I_pwm_value = self.I_pwm_value[:]
+        self.prev_r_pwm_value = self.r_pwm_value[:]
+        self.prev_d = self.d[:]
 
 
         print("optimum_illumination", self.I_pwm_value)
-        print("optimum_radius", self.r_pwm_value)
+        print("optimum_radius", self.d)
         print("optimum_rotation", opt_rotation)
         
+
+
     def start(self):
         while not rospy.is_shutdown():
             continue
+            
+        if KeyboardInterrupt:
+            print("\nShutting down: Turning off all LEDs and actuators.")
+            for i in range(1, 7): 
+                pwm.set_pwm(channel=i, on_time=0, off_time=0)
+            for i in range(7, 13):  
+                pwm.set_pwm(channel=i, on_time=0, off_time=205)
+            print("All LEDs and actuators are now OFF.")
+
+
         
         
 if __name__ == '__main__':
