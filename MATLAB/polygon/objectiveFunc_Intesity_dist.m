@@ -27,7 +27,7 @@ function error = objectiveFunc_Intesity_dist(x, gamma, theta_c, x_tg, y_tg, ...
     I_CV = std(intes_dist) / mean(intes_dist);
     I_avg = mean(intes_dist);
     % Regularization terms to prevent drifting too far
-    reg_radii = 0.0 * sum((x(Nag+1:2*Nag) - r_initial').^2);
+    reg_radii = 0.001 * sum((x(Nag+1:2*Nag) - r_initial').^2);
     reg_I0    = 0.0 * sum((x(1:Nag) - I0_initial').^2);
     intensity_error = 10 * (I_avg - mean(I_tg))^2 + (100 * I_CV) ^2; %10 * sum((I_tg - total_I').^2);  % Sum of squared differences
     % Total error (objective function output)

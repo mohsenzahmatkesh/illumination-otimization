@@ -7,7 +7,7 @@ I0_initial = ones(Nag, 1) * 10;
 r_initial = 6 * ones(Nag, 1); % cm
 base_angles = 0:2*pi/Nag:(Nag - 1) * 2 * pi/Nag';
 led_height = 5;           
-
+global bestFitnessHistory  % declare the variable outside
 
 target_c = [1 0.1];
 target_r = 1;             % cm
@@ -56,6 +56,7 @@ options = optimoptions('ga', ...
     'CrossoverFraction', crossoverFraction, ...
     'MutationFcn', {@mutationadaptfeasible}, ...   % Adaptive feasible mutation
     'MaxGenerations', maxgeneration, ...           % Increase if convergence is slow
+    'OutputFcn', @gaOutputFcn,...                  % For saving the best value of objective function in each generation
     'FunctionTolerance', 1e-12, ...
     'UseParallel', true, ...
     'PlotFcn',{'gaplotbestf','gaplotbestindiv'});  % Speed up if multiple cores are available
@@ -68,7 +69,7 @@ options = optimoptions('ga', ...
 % 
 % t=1
 
-[x_opt, fval, exitflag, output] = ga(@(x) objectiveFunc_Intesity_dist(x, gamma, theta_c, x_tg, ...
+[x_opt, fval, exitflag, output, population,scores] = ga(@(x) objectiveFunc_Intesity_dist(x, gamma, theta_c, x_tg, ...
                       y_tg, I_tg, led_height, base_angles, r_initial, I0_initial, Nag), ...
                       2*Nag+1, [], [], [], [], lb, ub, [], options);
 
@@ -95,6 +96,7 @@ plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height, gamma, x
 figure(4)
 surf(intensity_map)
 colorbar
+
 %% Visualization Functions
 
 
