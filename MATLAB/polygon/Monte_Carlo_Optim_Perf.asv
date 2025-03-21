@@ -1,23 +1,45 @@
-clc; clear; close all;
+function [opt_I0, opt_radii, opt_rotation, opt_angles, bestFitnessHistory, intensity_map, pgon] = Monte_Carlo_Optim_Perf(Nag, I_tg,  I0, r0, led_height, r_lim, r_min, r_max, Ntg, target_theta)
 %% Initialisation
-Nag = 6;% Number of LEDs (adjust if needed)
+% Monte_Carlo_Optim_Perf
+% Core function for statistical performance analysis.
+%
+% Inputs:
+%   Nag - Number of LEDs for illumination
+%   I_tg - final illumination intensity
+%   I0 - Initial intensity
+%   r0 - initial radial position (cm)
+%   led_height - the distance between LEDs and the illumination surface (cm)
+%   r_lim  - Maximum radius from the origin for polygon center
+%   r_min  - Minimum radius from polygon center to a vertex
+%   r_max  - Maximum radius from polygon center to a vertex
+%   target_theta - the target illumination polygon rotation (rad)
+%
+% Outputs:
+%   pgon         - polyshape object for plotting
+%   center       - 1x2 array with center [x, y]
+%   vertex_coords - Nx2 matrix with vertex coordinates [x_i, y_i]
+
+
+%%%%%%%%%% LED characteristics %%%%%%%%%%%%%%%%%
 gamma = 1;                  % Efficiency factor
 theta_c = 30 * pi/180;      % cutoff angle
-I0_initial = ones(Nag, 1) * 10;    
-r_initial = 6 * ones(Nag, 1); % cm
-base_angles = 0:2*pi/Nag:(Nag - 1) * 2 * pi/Nag';
-led_height = 5;           
-global bestFitnessHistory  % declare the variable outside
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-target_c = [1 0.1];
-target_r = 1;             % cm
-target_theta = 133.4*pi/180; 
-Ntg = 6;
+I0_initial = ones(Nag, 1) * I0;    
+r_initial = r0 * ones(Nag, 1); % cm
+base_angles = 0:2*pi/Nag:(Nag - 1) * 2 * pi/Nag';
+% led_height = 5;           
+global bestFitnessHistory  % declare the variable outside
+bestFitnessHistory = 1000;
+% target_c = [1 0.1];
+% target_r = 1;             % cm
+%target_theta = 133.4*pi/180; 
+% Ntg = 6;
 % pgon = nsidedpoly(Ntg, 'Center', target_c, 'Radius', target_r);
 % pgon = rotate(pgon, target_theta);
-r_lim = 1.5; r_min = 2; r_max = 2.75;
+% r_lim = 1.5; r_min = 2; r_max = 2.75;
 [pgon, center, vertex_coords] = generateRandomConvexPolygon(Ntg, r_lim, r_min, r_max);
-I_tg = 100;                
+% I_tg = 100;                
 
 if isempty(pgon)
     [x_tg, y_tg] = pol2cart(target_theta, target_r);
@@ -82,7 +104,7 @@ opt_angles = base_angles + opt_rotation;
 %% Final Res and Visualization
 
 for i = 1:length(x_tg)
-    final_I(i) = computeIntensity(opt_I0, opt_radii, opt_rotation, gamma, ...
+    final_I(i) = computeIntensity(Nag, opt_I0, opt_radii, opt_rotation, gamma, ...
                          theta_c, led_height, base_angles, x_tg(i), y_tg(i));
 end
 
@@ -90,14 +112,14 @@ end
 plotResults(base_angles, r_initial, opt_angles, opt_radii, led_height, ...
             opt_I0, I0_initial, x_tg, y_tg, theta_c);
 
-plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height, gamma, x_tg, y_tg);
+% plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height, gamma, x_tg, y_tg);
 
 [intensity_map, X_grid, Y_grid] = IntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height, gamma, x_tg, y_tg);
-save
 
-figure(4)
-surf(intensity_map)
-colorbar
+
+% figure(4)
+% surf(intensity_map)
+% colorbar
 
 %% Visualization Functions
 

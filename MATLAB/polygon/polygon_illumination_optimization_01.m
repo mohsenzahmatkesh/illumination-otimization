@@ -93,6 +93,8 @@ plotResults(base_angles, r_initial, opt_angles, opt_radii, led_height, ...
 plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height, gamma, x_tg, y_tg);
 
 [intensity_map, X_grid, Y_grid] = IntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height, gamma, x_tg, y_tg);
+
+
 figure(4)
 surf(intensity_map)
 colorbar

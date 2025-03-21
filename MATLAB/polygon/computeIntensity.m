@@ -1,7 +1,7 @@
-function total_I = computeIntensity(I0s, radii, delta_theta, gamma, theta_c, ...
+function total_I = computeIntensity(Nag, I0s, radii, delta_theta, gamma, theta_c, ...
                                    led_height, base_angles, x_tg, y_tg)
     total_I = 0;
-    for i = 1:6
+    for i = 1:Nag
         % Calculate LED position
         [x_led, y_led] = pol2cart(base_angles(i) + delta_theta, radii(i));
         
