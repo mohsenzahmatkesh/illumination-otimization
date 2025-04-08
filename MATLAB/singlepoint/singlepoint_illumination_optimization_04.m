@@ -9,8 +9,8 @@ base_angles = deg2rad([0, 60, 120, 180, 240, 300])';
 led_height = 15;           
 
 
-target_r = 0.0;             % cm
-target_theta = 0*pi/180;   
+target_r = 1;             % cm
+target_theta = 30*pi/180;   
 I_tg = 100;                
 
 
@@ -29,12 +29,14 @@ ub(7:12) = 8;
 lb(13) = 0;         
 ub(13) = 2*pi;
 
+nonlcon = @(x) convexHullConstraint(x, target_r, target_theta, base_angles);
 
 options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp', ...
                       'MaxFunctionEvaluations', 1e4);
 [x_opt, ~] = fmincon(@(x) objectiveFunc(x, gamma, theta_c, target_r, ...
                       target_theta, I_tg, led_height, base_angles, r_initial, I0_initial), ...
-                      initialGuess, [], [], [], [], lb, ub, [], options);
+                      initialGuess, [], [], [], [], lb, ub, nonlcon, options);
+
 
 
 opt_I0 = x_opt(1:6);
@@ -49,14 +51,41 @@ final_I = computeIntensity(opt_I0, opt_radii, opt_rotation, gamma, ...
 
 plotResults(base_angles, r_initial, opt_angles, opt_radii, led_height, ...
             opt_I0, I0_initial, target_r, target_theta);
-
+function [c, ceq] = convexHullConstraint(x, target_r, target_theta, base_angles)
+    [x_tg, y_tg] = pol2cart(target_theta, target_r);
+    
+    radii = x(7:12);
+    delta_theta = x(13);
+    angles = base_angles + delta_theta;
+    
+    x_led = radii .* cos(angles);
+    y_led = radii .* sin(angles);
+    
+    n = length(radii);
+    c = zeros(n, 1);
+    
+    for i = 1:n
+        j = mod(i, n) + 1;
+        xi = x_led(i);
+        yi = y_led(i);
+        xj = x_led(j);
+        yj = y_led(j);
+        
+        val_origin = -xi * yj + yi * xj;
+        val_target = (yj - yi)*(x_tg - xi) - (xj - xi)*(y_tg - yi);
+        
+        c(i) = -val_origin * val_target;
+    end
+    
+    ceq = [];
+end
 
 function error = objectiveFunc(x, gamma, theta_c, target_r, target_theta, ...
                               I_tg, led_height, base_angles, r_initial, I0_initial)
     [x_tg, y_tg] = pol2cart(target_theta, target_r);
     total_I = computeIntensity(x(1:6), x(7:12), x(13), gamma, theta_c, ...
                               led_height, base_angles, x_tg, y_tg);
-    error = (I_tg - total_I)^2 + 0.001 * sum((x(7:12) - r_initial).^2) + 0.001 * sum((x(1:6) - I0_initial).^2);
+    error = (I_tg - total_I)^2 + 0.001 * sum((x(7:12) - r_initial).^2) + 0.00 * sum((x(1:6) - I0_initial).^2);
     % error = (I_tg - total_I)^2 + 0.001 * sum((x(7:12) - r_initial).^2);
 end
 

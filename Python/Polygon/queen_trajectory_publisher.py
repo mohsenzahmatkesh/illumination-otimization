@@ -59,14 +59,14 @@ class Queen_Cam_TGT:
             
             if self.key == '':
                 
-                qx = self.data.iat[i,10]
-                qy = self.data.iat[i,11]
+                queen_x = self.data.iat[i,10]
+                queen_y = self.data.iat[i,11]
                 
                 cam_x = self.data.iat[i,3]
                 cam_y = self.data.iat[i,4]
                 
-                self.Pos_com.position.x = qx - cam_x
-                self.Pos_com.position.y = qy - cam_y
+                self.Pos_com.position.x = queen_x - cam_x
+                self.Pos_com.position.y = queen_y - cam_y
                 
                 self.MA_motion_pub.publish(self.Pos_com)
                 

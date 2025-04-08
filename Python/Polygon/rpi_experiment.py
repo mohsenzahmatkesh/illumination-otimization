@@ -60,7 +60,7 @@ class Experiment_sim():
             
             self.I_pwm_value[i] = int((opt_I0[i] * 4095) / 4000)
             
-            self.r_pwm_value[i] = 0.25 - ((opt_radii[i] - 1) / (8 - 1)) * (0.25 - 0.15)
+            self.r_pwm_value[i] = 0.15 - ((opt_radii[i] - 1) / (8 - 1)) * (0.25 - 0.15)
             self.d[i] = max(205, min(int(205 + (self.r_pwm_value[i] - 0.15) * 2050), 410))
             self.step_sizes[i] = int((self.d[i] - 205) / self.steps)
 

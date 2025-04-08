@@ -104,6 +104,42 @@ class singlepoint_optimization():
         plt.legend()
         plt.title('Optimized LED Configuration')
         
+        x_range = np.linspace(-10, 10, 200)
+        y_range = np.linspace(-10, 10, 200)
+        X, Y = np.meshgrid(x_range, y_range)
+        Z = np.zeros_like(X)
+
+        # Compute intensity at each grid point
+        for i in range(self.Nag):
+            theta = opt_angles[i]
+            x_led = opt_radii[i] * np.cos(theta)
+            y_led = opt_radii[i] * np.sin(theta)
+            dz = -self.led_height
+            I0 = opt_I0[i]
+    
+            dx = X - x_led
+            dy = Y - y_led
+            dist = np.sqrt(dx**2 + dy**2 + dz**2)
+            cos_theta = -dz / dist
+            theta_angle = np.arccos(np.clip(cos_theta, -1, 1))
+    
+            Z += self.gamma * I0 * np.exp(-(theta_angle / self.theta_c)**2) / dist**2
+    
+        # Plot intensity map
+        plt.figure()
+        plt.imshow(Z, extent=(x_range[0], x_range[-1], y_range[0], y_range[-1]),
+                   origin='lower', cmap='gray')
+        plt.colorbar(label='Intensity')
+        plt.scatter(self.target_r * np.cos(self.target_theta),
+                    self.target_r * np.sin(self.target_theta), c='g', marker='*', s=150, label='Target')
+        for i in range(self.Nag):
+            plt.scatter(opt_radii[i] * np.cos(opt_angles[i]),
+                        opt_radii[i] * np.sin(opt_angles[i]), c='r', marker='x')
+        plt.title('Light Intensity on Surface (Grayscale)')
+        plt.xlabel('X (cm)')
+        plt.ylabel('Y (cm)')
+        plt.legend()
+        
         # Intensity comparison
         fig, (ax1, ax2) = plt.subplots(1, 2)
         ax1.bar(range(self.Nag), self.I0_initial, color='gray')
@@ -157,13 +193,13 @@ class singlepoint_optimization():
         print(f"Target Intensity: {self.I_tg}")
         print(f"Error: {abs(self.I_tg - final_I)}")
         
-        # self.plot_results(opt_angles,opt_radii,opt_I0)
+        self.plot_results(opt_angles,opt_radii,opt_I0)
         
         return opt_I0, opt_radii, opt_rotation
         
 
 if __name__ == "__main__":
-   sing_Illum = singlepoint_optimization(Nag=6, r_init=6, led_height = 15, target_r = 0, target_theta=0, I_tg=100, I0_initial=50)
+   sing_Illum = singlepoint_optimization(Nag=6, r_init=6, led_height = 15, target_r = 2, target_theta=0, I_tg=100, I0_initial=50)
    sing_Illum.main()
 
 
