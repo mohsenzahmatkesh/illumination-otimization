@@ -82,8 +82,10 @@ opt_angles = base_angles + opt_rotation;
 %% Final Res and Visualization
 
 for i = 1:length(x_tg)
-    final_I(i) = computeIntensity(opt_I0, opt_radii, opt_rotation, gamma, ...
-                         theta_c, led_height, base_angles, x_tg(i), y_tg(i));
+    xtg = x_tg(i);
+    ytg = y_tg(i);
+    final_I(i) = computeIntensity(Nag, opt_I0, opt_radii, opt_rotation, gamma, ...
+                         theta_c, led_height, base_angles, xtg, ytg);
 end
 
 

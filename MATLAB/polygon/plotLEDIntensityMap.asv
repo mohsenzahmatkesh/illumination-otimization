@@ -39,7 +39,7 @@ function plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height,
     % Plotting
     figure;
     % Use pcolor for a smooth 2D plot (or surf/mesh for 3D)
-    ax1 = subplot(2,1,1);
+    ax1 = subplot(1,2,1);
     pcolor(X, Y, intensity_map);
     shading interp;
     colormap(ax1,'hot');
@@ -62,10 +62,10 @@ function plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height,
     ylabel('Y (cm)');
     grid on;
     
-    ax2 = subplot(2,1,2);
-    pcolor(X, Y, intensity_map);
+    ax2 = subplot(1,2,2);
+    pcolor(X, Y, intensity_map,);
     shading interp;
-    colormap(ax2,'gray')
+    colormap()
     colorbar;
     axis equal;
     hold on;
