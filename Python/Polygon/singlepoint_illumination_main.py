@@ -63,7 +63,6 @@ class singlepoint_optimization():
         
         total_I = self.compute_intensity(I0s, radii, delta_theta)
         
-        # Regularization terms
         reg_radii = 0.001 * np.sum((radii - self.r_initial)**2)
         reg_I0 = 0.0 * np.sum((I0s - self.I0_initial)**2)
         
@@ -179,7 +178,7 @@ class singlepoint_optimization():
     def main(self):
         
         result = minimize(self.objective_func, self.initial_guess, method='SLSQP', bounds=self.bounds,
-                          options={'maxiter': 10000, 'disp': True})
+                          options={'maxiter': 10000, 'disp': False})
         
         x_opt = result.x
         opt_I0 = x_opt[:self.Nag]
@@ -189,17 +188,17 @@ class singlepoint_optimization():
 
         # Calculate final intensity
         final_I = self.compute_intensity(opt_I0, opt_radii, opt_rotation)
-        print(f"Achieved Intensity: {final_I}")
-        print(f"Target Intensity: {self.I_tg}")
-        print(f"Error: {abs(self.I_tg - final_I)}")
+#        print(f"Achieved Intensity: {final_I}")
+#        print(f"Target Intensity: {self.I_tg}")
+#        print(f"Error: {abs(self.I_tg - final_I)}")
         
-        self.plot_results(opt_angles,opt_radii,opt_I0)
+        #self.plot_results(opt_angles,opt_radii,opt_I0)
         
         return opt_I0, opt_radii, opt_rotation
         
 
 if __name__ == "__main__":
-   sing_Illum = singlepoint_optimization(Nag=6, r_init=6, led_height = 15, target_r = 2, target_theta=0, I_tg=100, I0_initial=50)
+   sing_Illum = singlepoint_optimization(Nag=6, r_init=6, led_height = 15, target_r = 0, target_theta=0, I_tg=100, I0_initial=50)
    sing_Illum.main()
 
 

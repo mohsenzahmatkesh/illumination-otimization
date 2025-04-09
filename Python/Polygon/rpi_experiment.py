@@ -7,7 +7,7 @@ Created on Mon Mar 17 12:08:35 2025
 """
 import numpy as np
 import time
-from singlepoint_illumination import singlepoint_optimization
+from singlepoint_illumination_main import singlepoint_optimization
 import rospy
 from geometry_msgs.msg import Pose
 from ServoPi import PWM
@@ -56,11 +56,14 @@ class Experiment_sim():
         
         opt_I0, opt_radii, opt_rotation = self.optimized_illumination_results.main()
         
+        print("optimum_illumination_sim", opt_I0)
+        print("optimum_radius_sim", opt_radii)
+        print("optimum_rotation_sim", opt_rotation)
+        
         for i in range(6):
             
             self.I_pwm_value[i] = int((opt_I0[i] * 4095) / 4000)
-            
-            self.r_pwm_value[i] = 0.15 - ((opt_radii[i] - 1) / (8 - 1)) * (0.25 - 0.15)
+            self.r_pwm_value[i] = 0.15 - ((opt_radii[i] - 1) / (8 - 1)) * -(0.25 - 0.15)
             self.d[i] = max(205, min(int(205 + (self.r_pwm_value[i] - 0.15) * 2050), 410))
             self.step_sizes[i] = int((self.d[i] - 205) / self.steps)
 
@@ -96,9 +99,9 @@ class Experiment_sim():
         self.prev_d = self.d[:]
 
 
-        print("optimum_illumination", self.I_pwm_value)
-        print("optimum_radius", self.d)
-        print("optimum_rotation", opt_rotation)
+        print("optimum_illumination_rpi", self.I_pwm_value)
+        print("optimum_radius_rpi", self.d)
+        print("optimum_rotation_rpi", opt_rotation)
         
 
 
@@ -111,7 +114,7 @@ class Experiment_sim():
             for i in range(1, 7): 
                 pwm.set_pwm(channel=i, on_time=0, off_time=0)
             for i in range(7, 13):  
-                pwm.set_pwm(channel=i, on_time=0, off_time=205)
+                pwm.set_pwm(channel=i, on_time=0, off_time=410)
             print("All LEDs and actuators are now OFF.")
 
 
