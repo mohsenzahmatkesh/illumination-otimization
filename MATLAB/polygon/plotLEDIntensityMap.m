@@ -39,6 +39,7 @@ function plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height,
     % Plotting
     figure;
     % Use pcolor for a smooth 2D plot (or surf/mesh for 3D)
+    subplot(1,2,1)
     pcolor(X, Y, intensity_map);
     shading interp;
     colormap hot;
@@ -60,4 +61,28 @@ function plotLEDIntensityMap(opt_angles, opt_radii, opt_I0, theta_c, led_height,
     xlabel('X (cm)');
     ylabel('Y (cm)');
     grid on;
+    
+    subplot(1,2,2)
+    pcolor(X, Y, intensity_map);
+    shading interp;
+    colormap gray;
+    colorbar;
+    axis equal;
+    hold on;
+    
+    % Plot LEDs
+    [x_leds, y_leds] = pol2cart(opt_angles, opt_radii);
+    scatter(x_leds, y_leds, 50, 10 * opt_I0/max(opt_I0), 'DisplayName', 'LEDs');
+    
+    
+    % Plot target point
+    %[x_tgt, y_tgt] = pol2cart(target_theta, target_r);
+    plot([x_tg;x_tg(1)], [y_tg;y_tg(1)], 'k:', 'DisplayName', 'Target');
+    
+    legend;
+    title('LED Intensity Footprint Map');
+    xlabel('X (cm)');
+    ylabel('Y (cm)');
+    grid on;
+
 end
