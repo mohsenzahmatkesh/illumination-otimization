@@ -192,7 +192,7 @@ class singlepoint_optimization():
 #        print(f"Target Intensity: {self.I_tg}")
 #        print(f"Error: {abs(self.I_tg - final_I)}")
         
-        #self.plot_results(opt_angles,opt_radii,opt_I0)
+#        self.plot_results(opt_angles,opt_radii,opt_I0)
         
         return opt_I0, opt_radii, opt_rotation
         
