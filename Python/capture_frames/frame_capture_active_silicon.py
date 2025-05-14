@@ -13,7 +13,7 @@ import subprocess
 
 # Initial default values
 zoom = 3000
-focus = 4700
+focus = 4676
 exposure = 200
 gain = 4
 
@@ -26,13 +26,10 @@ def set_camera_controls(z, f, e):
     subprocess.run([
         "v4l2-ctl", "-d", "/dev/video0",
         "--set-ctrl=auto_exposure=1",
-#        f"--set-ctrl=zoom_absolute={z}",
-        f"--set-ctrl=zoom_absolute=7000",
+        f"--set-ctrl=zoom_absolute={z}",
         f"--set-ctrl=focus_automatic_continuous=0",
-#        f"--set-ctrl=focus_absolute={f}",
-        f"--set-ctrl=focus_absolute=4798",
-#        f"--set-ctrl=exposure_time_absolute={e}",
-        f"--set-ctrl=exposure_time_absolute=200",
+        f"--set-ctrl=focus_absolute={f}",
+        f"--set-ctrl=exposure_time_absolute={e}",
         f"--set-ctrl=gain={gain}"
     ])
 
