@@ -14,12 +14,12 @@ import subprocess
 # Initial default values
 zoom = 3000
 focus = 4676
-exposure = 200
-gain = 4
+exposure = 100
+gain = 1
 
 # Limits from v4l2-ctl --all
 ZOOM_MIN, ZOOM_MAX = 0, 32256
-FOCUS_MIN, FOCUS_MAX = 3940, 5320
+FOCUS_MIN, FOCUS_MAX = 3940, 6320
 EXPOSURE_MIN, EXPOSURE_MAX = 1, 10000
 
 def set_camera_controls(z, f, e):
@@ -69,7 +69,7 @@ while True:
         break
 
     frame = enhance_colors(frame)
-    frame = cv2.convertScaleAbs(frame, alpha=1.2, beta=15)
+    frame = cv2.convertScaleAbs(frame, alpha=1.0, beta=0)
 
     cv2.imshow("Camera", frame)
 
